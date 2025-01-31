@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 # Judul aplikasi
-st.title("Face Detection from Uploaded Video")
+st.title("Face Detection from Webcam Input")
 
 # Menggunakan file Haar Cascade untuk deteksi wajah
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -19,25 +19,16 @@ def detect_faces(image):
 
     return image
 
-# Upload video
-video_file = st.file_uploader("Upload Video", type=["mp4", "mov", "avi"])
+# Input kamera (menggunakan webcam)
+image = st.camera_input("Take a picture")
 
-if video_file is not None:
-    # Membaca file video
-    file_bytes = np.asarray(bytearray(video_file.read()), dtype=np.uint8)
-    cap = cv2.VideoCapture(cv2.imdecode(file_bytes, cv2.IMREAD_COLOR))
+if image is not None:
+    # Mengonversi gambar dari BytesIO ke format OpenCV
+    img = np.array(bytearray(image.read()), dtype=np.uint8)
+    img = cv2.imdecode(img, cv2.IMREAD_COLOR)
 
-    stframe = st.empty()  # Placeholder untuk menampilkan frame
+    # Deteksi wajah
+    img = detect_faces(img)
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Deteksi wajah
-        frame = detect_faces(frame)
-
-        # Menampilkan frame di Streamlit
-        stframe.image(frame, channels="BGR", use_column_width=True)
-
-    cap.release()
+    # Menampilkan gambar dengan wajah yang terdeteksi
+    st.image(img, channels="BGR")
