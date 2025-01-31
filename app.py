@@ -1,7 +1,6 @@
 import streamlit as st
 import cv2
 import numpy as np
-import tempfile
 
 # Judul aplikasi
 st.title("Real-Time Face Detection with OpenCV")
@@ -31,6 +30,7 @@ def capture_video():
     while True:
         ret, frame = cap.read()
         if not ret:
+            st.warning("Tidak dapat mengakses kamera.")
             break
 
         # Deteksi wajah
@@ -39,13 +39,13 @@ def capture_video():
         # Menampilkan frame di Streamlit
         stframe.image(frame, channels="BGR", use_column_width=True)
 
-        # Membatasi waktu atau kondisi untuk keluar dari loop
+        # Berhenti jika sudah berjalan selama 10 detik atau lebih, misalnya
+        # Kamu bisa menggunakan timeout atau event untuk membatasi stream
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     # Menutup kamera setelah selesai
     cap.release()
-    cv2.destroyAllWindows()
 
 # Tombol untuk memulai video stream
 if st.button('Start Video Stream'):
