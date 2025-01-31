@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 # Judul aplikasi
-st.title("Real-Time Face Detection with OpenCV")
+st.title("Face Detection from Uploaded Video")
 
 # Menggunakan file Haar Cascade untuk deteksi wajah
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -19,18 +19,19 @@ def detect_faces(image):
 
     return image
 
-# Fungsi untuk menangkap video dan memproses frame-by-frame
-def capture_video():
-    # Mengakses kamera pertama
-    cap = cv2.VideoCapture(0)
+# Upload video
+video_file = st.file_uploader("Upload Video", type=["mp4", "mov", "avi"])
 
-    # Menangkap video selama 5 detik atau lebih
-    stframe = st.empty()  # Placeholder untuk menampilkan gambar
+if video_file is not None:
+    # Membaca file video
+    file_bytes = np.asarray(bytearray(video_file.read()), dtype=np.uint8)
+    cap = cv2.VideoCapture(cv2.imdecode(file_bytes, cv2.IMREAD_COLOR))
 
-    while True:
+    stframe = st.empty()  # Placeholder untuk menampilkan frame
+
+    while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
-            st.warning("Tidak dapat mengakses kamera.")
             break
 
         # Deteksi wajah
@@ -39,14 +40,4 @@ def capture_video():
         # Menampilkan frame di Streamlit
         stframe.image(frame, channels="BGR", use_column_width=True)
 
-        # Berhenti jika sudah berjalan selama 10 detik atau lebih, misalnya
-        # Kamu bisa menggunakan timeout atau event untuk membatasi stream
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # Menutup kamera setelah selesai
     cap.release()
-
-# Tombol untuk memulai video stream
-if st.button('Start Video Stream'):
-    capture_video()
